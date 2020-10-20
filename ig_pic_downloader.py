@@ -7,13 +7,18 @@ ins_pics = locate+"\\ins_pics"
 # Get instance
 if os.path.exists(ins_pics) ==False:
     os.mkdir(ins_pics)
-print("Please login your instagram account !")
-local_user = input("User Name:")
-local_pwd = input("Password:")
-os.system("cls")
 os.chdir(ins_pics)
 L = instaloader.Instaloader()
-L.login(local_user,local_pwd)
+search = input("1.Global search 2.Private search : ")
+if search=="2":
+    print("Please login your instagram account !")
+    local_user = input("User Name:")
+    local_pwd = input("Password:")
+    os.system("cls")
+    L.login(local_user,local_pwd)
+
+
+
 #Load the UserName
 
 
