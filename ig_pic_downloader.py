@@ -2,49 +2,119 @@ import os
 import instaloader
 from datetime import datetime
 
-locate = os.getcwd()
-ins_pics = locate+"\\ins_pics"
-# Get instance
-if os.path.exists(ins_pics) ==False:
-    os.mkdir(ins_pics)
-os.chdir(ins_pics)
-L = instaloader.Instaloader()
-search = input("1.Global search 2.Private search : ")
-if search=="2":
+def url_download():
+    url = input("URL shortcode: ")
+    post = instaloader.Post.from_shortcode(L.context, url)
+    L.download_post(post,target="URL")
+
+def login_ig():
     print("Please login your instagram account !")
     local_user = input("User Name:")
     local_pwd = input("Password:")
     os.system("cls")
     L.login(local_user,local_pwd)
 
+def back_init():
+    global profile
+    global username
+    username = input("Instagram_ID:")
+    profile = instaloader.Profile.from_username(L.context, username)
+    profile_id = L.check_profile_id(username)
+    
+    
+    if os.path.exists(ins_pics+"\\"+username+"\\"+username+"\\"+username+".jpg"):
+        print("thumbnail exists.")
+    else:
+        os.chdir(ins_pics+"\\"+username) #create a directory for thumbnail + download
+        L.download_profilepic(profile)  #profile picture
 
+    os.chdir(ins_pics+"\\"+username+"\\"+username)
+
+    try:
+        os.rename(os.listdir()[0],username+".jpg")    
+    except:
+        pass
+    
+    os.chdir(ins_pics)
+    tmp = []
+    tmp.append(profile_id.userid)
+        
+    #Read the profile posts and downloads those containing the hashtags
+    #followers = profile.followers
+    #followees = profile.followees
+    #post_count=profile.get_posts().count
+    #biography = profile.biography
+
+    #print(username +" has "+str(followers)+" followers and "+str(followees)+"  followees\nPosts = "+str(post_count)+"\n"+biography)
+
+        
+
+def post_search():
+    t_y=int(input("Year: "))
+    t_m=int(input("Month: "))
+    t_d=int(input("Day: "))
+    posts = profile.get_posts() #get all post from a user
+    UNTIL=datetime(t_y,t_m,t_d)
+     # specific day post til now
+    for post in posts:
+        if post.date_utc>=UNTIL:
+            L.download_post(post,target=username)
+        if post.date_utc<UNTIL:  #break the loop for not costing a lot of time
+            break
+
+def story_search():
+    for story in L.get_stories(userids=tmp):
+            # story is a Story object
+        for item in story.get_items():
+        # item is a StoryItem object
+            L.download_storyitem(item, username)
+
+def highlight_search():
+    for highlight in L.get_highlights(profile_id.userid):
+    # highlight is a Highlight object
+        for item in highlight.get_items():
+        # item is a StoryItem object
+            L.download_storyitem(item, username)
+
+#=======================================================================================
+locate = os.getcwd()
+ins_pics = locate+"\\ins_pics"
+
+if os.path.exists(ins_pics) ==False:
+    os.mkdir(ins_pics)
+os.chdir(ins_pics)
+L = instaloader.Instaloader(compress_json=False,save_metadata=False)
+search = input("1.Global search 2.Private search: ")
+if search =="1": #global
+    url_or_person = input("1.Person 2.URL : ")
+    if url_or_person=="1":
+        back_init()
+        post_search()
+    if url_or_person=="2": #global URL
+        url_download()
+
+if search=="2": #private
+    login_ig()
+    mode = input("1.post 2.stories 3.highlights : ")
+    if mode == "1":
+        back_init()
+        post_search()
+    if mode == "2":
+        back_init
+        story_search()
+    if mode == "3":
+        back_init()
+        highlight_search()
+
+L.close()
+print("Download complete.")
+
+    
+    
 
 #Load the UserName
 
 
-username = input("Instagram_ID:")
-t_y=int(input("Year: "))
-t_m=int(input("Month: "))
-t_d=int(input("Day: "))
-profile = instaloader.Profile.from_username(L.context, username)
-post_iterator = profile.get_posts()
-#Read the profile posts and downloads those containing the hashtags
-followers = profile.followers
-followees = profile.followees
-post_count=profile.get_posts().count
-biography = profile.biography
-
-#print(username +" has "+str(followers)+" followers and "+str(followees)+"  followees\nPosts = "+str(post_count)+"\n"+biography)
-#L.download_profilepic(profile)  #profile picture
-x=datetime.now()
-print(t_y,t_m,t_d)
 
 
-for post in post_iterator:
-    #print("like count:",post.likes) 
-    #print("comment count",post.comments)
-    #print(post.caption) #pcaption只會給前段內文，如果要完整內文用caption
-    if post.date_utc>=datetime(t_y,t_m,t_d): #and post.date_utc<=datetime(x.year,x.month,x.day) :
-        L.download_post(post,target="search")
-    
 
