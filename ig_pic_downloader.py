@@ -11,24 +11,25 @@ def login_ig():
     print("Please login your instagram account !")
     local_user = input("User Name:")
     local_pwd = input("Password:")
-    os.system("cls")
+    os.system("clear")
     L.login(local_user,local_pwd)
 
 def back_init():
     global profile
     global username
+    global profile_id
     username = input("Instagram_ID:")
     profile = instaloader.Profile.from_username(L.context, username)
     profile_id = L.check_profile_id(username)
     
     
-    if os.path.exists(ins_pics+"\\"+username+"\\"+username+"\\"+username+".jpg"):
+    if os.path.exists(ins_pics+"/"+username+"/"+username+"/"+username+".jpg"):
         print("thumbnail exists.")
     else:
-        os.chdir(ins_pics+"\\"+username) #create a directory for thumbnail + download
+        os.chdir(ins_pics+"/"+username) #create a directory for thumbnail + download
         L.download_profilepic(profile)  #profile picture
 
-    os.chdir(ins_pics+"\\"+username+"\\"+username)
+    os.chdir(ins_pics+"/"+username+"/"+username)
 
     try:
         os.rename(os.listdir()[0],username+".jpg")    
@@ -38,6 +39,7 @@ def back_init():
     os.chdir(ins_pics)
     tmp = []
     tmp.append(profile_id.userid)
+    #print(tmp)
         
     #Read the profile posts and downloads those containing the hashtags
     #followers = profile.followers
@@ -55,9 +57,11 @@ def post_search():
     t_d=int(input("Day: "))
     posts = profile.get_posts() #get all post from a user
     UNTIL=datetime(t_y,t_m,t_d)
+    uto=datetime(t_y,t_m,t_d+1)
      # specific day post til now
     for post in posts:
-        if post.date_utc>=UNTIL:
+        if post.date_utc>=UNTIL and post.date_utc<uto:
+            print(post.date_utc)
             L.download_post(post,target=username)
         if post.date_utc<UNTIL:  #break the loop for not costing a lot of time
             break
@@ -74,22 +78,33 @@ def highlight_search():
     # highlight is a Highlight object
         for item in highlight.get_items():
         # item is a StoryItem object
-            L.download_storyitem(item, username)
+            print(item)
+            #L.download_storyitem(item, username)
 
 #=======================================================================================
 locate = os.getcwd()
-ins_pics = locate+"\\ins_pics"
+ins_pics = locate+"/ins_pics"
 
 if os.path.exists(ins_pics) ==False:
     os.mkdir(ins_pics)
 os.chdir(ins_pics)
+print(os.getcwd())
 L = instaloader.Instaloader(compress_json=False,save_metadata=False)
 search = input("1.Global search 2.Private search: ")
 if search =="1": #global
     url_or_person = input("1.Person 2.URL : ")
     if url_or_person=="1":
-        back_init()
-        post_search()
+        
+        mode = input("1.post 2.stories 3.highlights : ")
+        if mode == "1":
+            back_init()
+            post_search()
+        if mode == "2":
+            back_init()
+            story_search()
+        if mode == "3":
+            back_init()
+            highlight_search()
     if url_or_person=="2": #global URL
         url_download()
 
@@ -100,7 +115,7 @@ if search=="2": #private
         back_init()
         post_search()
     if mode == "2":
-        back_init
+        back_init()
         story_search()
     if mode == "3":
         back_init()
