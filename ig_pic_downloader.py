@@ -1,4 +1,4 @@
-import os
+import os,platform
 import instaloader
 from datetime import datetime
 
@@ -11,7 +11,7 @@ def login_ig():
     print("Please login your instagram account !")
     local_user = input("User Name:")
     local_pwd = input("Password:")
-    os.system("clear")
+    os.system(os_clear[my_os])
     L.login(local_user,local_pwd)
 
 def back_init():
@@ -23,13 +23,13 @@ def back_init():
     profile_id = L.check_profile_id(username)
     
     
-    if os.path.exists(ins_pics+"/"+username+"/"+username+"/"+username+".jpg"):
+    if os.path.exists(ins_pics+os_slash[my_os]+username+os_slash[my_os]+username+os_slash[my_os]+username+".jpg"):
         print("thumbnail exists.")
     else:
-        os.chdir(ins_pics+"/"+username) #create a directory for thumbnail + download
+        os.chdir(ins_pics+os_slash[my_os]+username) #create a directory for thumbnail + download
         L.download_profilepic(profile)  #profile picture
 
-    os.chdir(ins_pics+"/"+username+"/"+username)
+    os.chdir(ins_pics+os_slash[my_os]+username+os_slash[my_os]+username)
 
     try:
         os.rename(os.listdir()[0],username+".jpg")    
@@ -83,12 +83,17 @@ def highlight_search():
 
 #=======================================================================================
 locate = os.getcwd()
-ins_pics = locate+"/ins_pics"
+os_slash= {"Windows":"\\","Linux":"/","macOS":"/"}
+os_clear= {"Windows":"cls","Linux":"clear","macOS":"clear"}
+my_os = platform.system()
+
+
+ins_pics = locate+os_slash[my_os]+"ins_pics"
 
 if os.path.exists(ins_pics) ==False:
     os.mkdir(ins_pics)
 os.chdir(ins_pics)
-print(os.getcwd())
+#print(os.getcwd())
 L = instaloader.Instaloader(compress_json=False,save_metadata=False)
 search = input("1.Global search 2.Private search: ")
 if search =="1": #global
